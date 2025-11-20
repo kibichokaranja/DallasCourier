@@ -28,13 +28,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const pathname = usePathname()
 
   useEffect(() => {
-    // Check for stored auth on mount
-    const storedToken = localStorage.getItem('auth_token')
-    const storedUser = localStorage.getItem('auth_user')
+    // Check for stored auth on mount (client-side only)
+    if (typeof window !== 'undefined') {
+      const storedToken = localStorage.getItem('auth_token')
+      const storedUser = localStorage.getItem('auth_user')
 
-    if (storedToken && storedUser) {
-      setToken(storedToken)
-      setUser(JSON.parse(storedUser))
+      if (storedToken && storedUser) {
+        setToken(storedToken)
+        setUser(JSON.parse(storedUser))
+      }
     }
     setIsLoading(false)
   }, [])
@@ -79,8 +81,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const data = await response.json()
     setToken(data.token)
     setUser(data.user)
-    localStorage.setItem('auth_token', data.token)
-    localStorage.setItem('auth_user', JSON.stringify(data.user))
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('auth_token', data.token)
+      localStorage.setItem('auth_user', JSON.stringify(data.user))
+    }
 
     // Redirect based on role
     if (data.user.role === 'admin') {
@@ -93,8 +97,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const logout = () => {
     setToken(null)
     setUser(null)
-    localStorage.removeItem('auth_token')
-    localStorage.removeItem('auth_user')
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('auth_token')
+      localStorage.removeItem('auth_user')
+    }
     router.push('/login')
   }
 
