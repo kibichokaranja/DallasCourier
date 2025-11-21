@@ -1,14 +1,4 @@
-// API configuration - use environment variable or fallback
-const getApiUrl = () => {
-  if (typeof window !== 'undefined') {
-    // Client-side: use environment variable or fallback
-    return process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'
-  }
-  // Server-side: use environment variable or fallback
-  return process.env.NEXT_PUBLIC_API_URL || process.env.API_URL || 'http://localhost:4000'
-}
-
-const API_URL = getApiUrl()
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'
 
 export async function apiRequest(endpoint: string, options: RequestInit = {}) {
   const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null
