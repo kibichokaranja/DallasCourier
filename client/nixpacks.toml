@@ -6,6 +6,7 @@ cmds = ["npm install"]
 
 [phases.build]
 cmds = ["npm run build"]
+# Note: NEXT_PUBLIC_API_URL is not required - we use runtime detection
 
 [start]
 cmd = "npm start"
