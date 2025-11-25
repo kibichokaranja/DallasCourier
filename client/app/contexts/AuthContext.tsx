@@ -61,7 +61,33 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [user, pathname, isLoading, router])
 
   const login = async (email: string, password: string) => {
-    const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'
+    // Use runtime detection - same logic as api.ts
+    let API_URL = 'http://localhost:4000'
+    
+    if (typeof window !== 'undefined') {
+      const hostname = window.location.hostname
+      const protocol = window.location.protocol
+      
+      // If on Railway production, construct backend URL
+      if (hostname.includes('railway.app') || hostname.includes('up.railway.app')) {
+        let backendHostname = hostname
+          .replace(/frontend-production-[a-z0-9]+/, 'backend-production-4819') // Use known backend hash
+          .replace('frontend', 'backend')
+          .replace('dallas-courier-frontend', 'dallas-courier-backend')
+          .replace('client', 'server')
+        
+        // If replacement didn't work, use known backend URL
+        if (backendHostname === hostname && hostname.includes('dallas-courier-frontend')) {
+          backendHostname = 'dallas-courier-backend-production-4819.up.railway.app'
+        }
+        
+        API_URL = `${protocol}//${backendHostname}`
+        console.log('Using constructed backend URL for login:', API_URL)
+      } else if (hostname === 'localhost' || hostname === '127.0.0.1') {
+        API_URL = 'http://localhost:4000'
+      }
+    }
+    
     const response = await fetch(`${API_URL}/api/auth/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
